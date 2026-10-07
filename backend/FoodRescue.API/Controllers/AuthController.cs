@@ -40,7 +40,8 @@ public class AuthController : ControllerBase
         {
             Name = request.Name,
             Email = request.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = "Responsable"
         };
 
         _context.Users.Add(user);
@@ -78,7 +79,8 @@ public class AuthController : ControllerBase
             {
                 user.Id,
                 user.Name,
-                user.Email
+                user.Email,
+                user.Role
             }
         });
     }
@@ -89,7 +91,8 @@ public class AuthController : ControllerBase
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
         };
 
         var key = new SymmetricSecurityKey(

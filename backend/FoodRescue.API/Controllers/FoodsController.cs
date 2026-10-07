@@ -2,11 +2,13 @@ using FoodRescue.API.Data;
 using FoodRescue.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FoodRescue.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class FoodsController : ControllerBase
 {
     private readonly FoodRescueDbContext _context;
@@ -69,6 +71,7 @@ public class FoodsController : ControllerBase
 
     // DELETE: api/Foods/1
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrador")]
     public async Task<IActionResult> DeleteFood(int id)
     {
         var food = await _context.Foods.FindAsync(id);
