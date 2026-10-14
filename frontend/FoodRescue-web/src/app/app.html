@@ -1,13 +1,22 @@
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
 <div class="page" *ngIf="!loginCorrecto">
 
+  <!-- PANEL IZQUIERDO -->
+
   <section class="brand-panel">
+
     <div class="brand-content">
 
       <div class="brand-icon">
         🌱
       </div>
 
-      <span class="brand-name">FOOD RESCUE</span>
+      <span class="brand-name">
+        FOOD RESCUE
+      </span>
 
       <h1>
         Menos desperdicio.<br>
@@ -21,9 +30,10 @@
       </p>
 
       <div class="features">
+
         <div>
           <span>✓</span>
-          Control de alimentos
+          Control de inventario
         </div>
 
         <div>
@@ -33,13 +43,17 @@
 
         <div>
           <span>✓</span>
-          Gestión por prioridades
+          Gestión por lotes
         </div>
+
       </div>
 
     </div>
+
   </section>
 
+
+  <!-- PANEL LOGIN -->
 
   <section class="login-panel">
 
@@ -49,17 +63,24 @@
         🌱 FOOD RESCUE
       </div>
 
-      <p class="welcome">BIENVENIDO</p>
+      <p class="welcome">
+        BIENVENIDO
+      </p>
 
-      <h2>Iniciar sesión</h2>
+      <h2>
+        Iniciar sesión
+      </h2>
 
       <p class="description">
         Ingresa tus credenciales para acceder al sistema.
       </p>
 
+
       <form (ngSubmit)="iniciarSesion()">
 
-        <label>Correo electrónico</label>
+        <label>
+          Correo electrónico
+        </label>
 
         <input
           type="email"
@@ -69,7 +90,10 @@
           required
         >
 
-        <label>Contraseña</label>
+
+        <label>
+          Contraseña
+        </label>
 
         <input
           type="password"
@@ -79,25 +103,29 @@
           required
         >
 
+
         <div
           class="error"
           *ngIf="mensaje">
+
           {{ mensaje }}
+
         </div>
+
 
         <button
           type="submit"
           [disabled]="cargando">
 
-          {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
+          {{
+            cargando
+              ? 'Ingresando...'
+              : 'Iniciar sesión'
+          }}
 
         </button>
 
       </form>
-
-      <p class="security">
-        🔒 Acceso protegido mediante autenticación JWT
-      </p>
 
     </div>
 
@@ -106,47 +134,136 @@
 </div>
 
 
-<!-- DASHBOARD TEMPORAL -->
+<!-- =====================================================
+     SISTEMA
+===================================================== -->
 
-<div class="dashboard" *ngIf="loginCorrecto">
+<div
+  class="dashboard"
+  *ngIf="loginCorrecto">
+
+
+  <!-- ===================================================
+       MENÚ LATERAL
+  ==================================================== -->
 
   <aside>
 
     <div class="sidebar-brand">
+
       🌱
-      <span>Food Rescue</span>
+
+      <span>
+        Food Rescue
+      </span>
+
     </div>
 
+
     <nav>
-      <a class="active">▦ Dashboard</a>
-      <a>🥗 Alimentos</a>
-      <a>⚠ Prioritarios</a>
-      <a>👤 Usuarios</a>
+
+      <a
+        (click)="cambiarSeccion('dashboard')"
+        [class.active]="seccionActiva === 'dashboard'">
+
+        ▦ Panel de control
+
+      </a>
+
+
+      <a
+        (click)="cambiarSeccion('inventario')"
+        [class.active]="seccionActiva === 'inventario'">
+
+        🥗 Inventario
+
+      </a>
+
+
+      <a
+        (click)="cambiarSeccion('alertas')"
+        [class.active]="seccionActiva === 'alertas'">
+
+        ⚠ Alertas
+
+      </a>
+
+
+      <a
+        *ngIf="esAdministrador()"
+        (click)="cambiarSeccion('usuarios')"
+        [class.active]="seccionActiva === 'usuarios'">
+
+        👤 Usuarios
+
+      </a>
+
     </nav>
 
   </aside>
 
 
+  <!-- ===================================================
+       CONTENIDO PRINCIPAL
+  ==================================================== -->
+
   <main>
+
+
+    <!-- =================================================
+         CABECERA
+    ================================================== -->
 
     <header>
 
       <div>
-        <p>FOOD RESCUE</p>
-        <h1>Panel de control</h1>
+
+        <p>
+          FOOD RESCUE
+        </p>
+
+
+        <h1 *ngIf="seccionActiva === 'dashboard'">
+          Panel de control
+        </h1>
+
+        <h1 *ngIf="seccionActiva === 'inventario'">
+          Inventario
+        </h1>
+
+        <h1 *ngIf="seccionActiva === 'alertas'">
+          Alertas de vencimiento
+        </h1>
+
+        <h1 *ngIf="seccionActiva === 'usuarios'">
+          Gestión de usuarios
+        </h1>
+
       </div>
+
 
       <div class="user">
 
         <div>
-          <strong>{{ usuario?.name }}</strong>
-          <span>{{ usuario?.role }}</span>
+
+          <strong>
+            {{ usuario?.name }}
+          </strong>
+
+          <span>
+            {{ usuario?.role }}
+          </span>
+
         </div>
 
+
         <button
+          type="button"
           class="logout"
           (click)="cerrarSesion()">
+
           Cerrar sesión
+
         </button>
 
       </div>
@@ -154,27 +271,828 @@
     </header>
 
 
-    <section class="welcome-card">
+    <!-- =================================================
+         PANEL DE CONTROL
+    ================================================== -->
 
-      <div>
-        <p class="welcome-small">BIENVENIDO AL SISTEMA</p>
+    <ng-container
+      *ngIf="seccionActiva === 'dashboard'">
 
-        <h2>
-          Hola, {{ usuario?.name }}
-        </h2>
 
-        <p>
-          El sistema está conectado correctamente y tu
-          sesión se encuentra protegida mediante JWT.
-        </p>
+      <!-- CARGANDO -->
+
+      <div
+        class="loading"
+        *ngIf="cargandoDashboard">
+
+        Cargando información del inventario...
+
       </div>
 
-      <div class="status">
-        <span></span>
-        Sistema activo
+
+      <!-- ERROR -->
+
+      <div
+        class="dashboard-error"
+        *ngIf="errorDashboard">
+
+        {{ errorDashboard }}
+
+      </div>
+
+
+      <!-- INFORMACIÓN DEL DASHBOARD -->
+
+      <ng-container
+        *ngIf="dashboard && !cargandoDashboard">
+
+
+        <!-- TARJETAS PRINCIPALES -->
+
+        <section class="stats-grid">
+
+          <div class="stat-card">
+
+            <span class="stat-label">
+              Alimentos registrados
+            </span>
+
+            <strong>
+              {{ dashboard.totalAlimentos }}
+            </strong>
+
+            <small>
+              Lotes registrados
+            </small>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span class="stat-label">
+              Inventario total
+            </span>
+
+            <strong>
+              {{ dashboard.totalInventario }}
+            </strong>
+
+            <small>
+              Unidades registradas
+            </small>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <span class="stat-label">
+              Valor del inventario
+            </span>
+
+            <strong>
+              ${{ dashboard.valorInventario | number:'1.2-2' }}
+            </strong>
+
+            <small>
+              Valor económico total
+            </small>
+
+          </div>
+
+        </section>
+
+
+        <!-- ESTADOS -->
+
+        <section class="status-grid">
+
+          <div class="status-card disponible">
+
+            <div class="status-icon">
+              🟢
+            </div>
+
+            <div>
+
+              <span>
+                Disponibles
+              </span>
+
+              <strong>
+                {{ dashboard.disponibles }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="status-card prioritario">
+
+            <div class="status-icon">
+              🟡
+            </div>
+
+            <div>
+
+              <span>
+                Consumo prioritario
+              </span>
+
+              <strong>
+                {{ dashboard.prioritarios }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="status-card vencido">
+
+            <div class="status-icon">
+              🔴
+            </div>
+
+            <div>
+
+              <span>
+                No disponibles
+              </span>
+
+              <strong>
+                {{ dashboard.vencidos }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- PRÓXIMOS A VENCER -->
+
+        <section class="alerts-section">
+
+          <div class="section-header">
+
+            <div>
+
+              <p>
+                CONTROL DE VENCIMIENTOS
+              </p>
+
+              <h2>
+                Próximos a vencer
+              </h2>
+
+            </div>
+
+
+            <span class="alert-count">
+
+              {{ dashboard.alertas.length }}
+
+              {{
+                dashboard.alertas.length === 1
+                  ? 'alerta'
+                  : 'alertas'
+              }}
+
+            </span>
+
+          </div>
+
+
+          <!-- SIN ALERTAS -->
+
+          <div
+            class="empty-alerts"
+            *ngIf="dashboard.alertas.length === 0">
+
+            ✅ No existen alimentos próximos a vencer.
+
+          </div>
+
+
+          <!-- ALERTAS -->
+
+          <div
+            class="alert-list"
+            *ngIf="dashboard.alertas.length > 0">
+
+            <div
+              class="alert-item"
+              *ngFor="let alerta of dashboard.alertas"
+              [ngClass]="obtenerClaseAlerta(alerta.daysRemaining)">
+
+
+              <div class="alert-product">
+
+                <strong>
+                  {{ alerta.product }}
+                </strong>
+
+                <span>
+                  Lote {{ alerta.lotCode }}
+                </span>
+
+              </div>
+
+
+              <div class="alert-quantity">
+
+                <span>
+                  Cantidad
+                </span>
+
+                <strong>
+                  {{ alerta.quantity }}
+                </strong>
+
+              </div>
+
+
+              <div class="alert-date">
+
+                <span>
+                  Fecha de vencimiento
+                </span>
+
+                <strong>
+                  {{
+                    alerta.expirationDate
+                      | date:'dd/MM/yyyy'
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="alert-days">
+
+                {{
+                  obtenerTextoDias(
+                    alerta.daysRemaining
+                  )
+                }}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ACCIONES RÁPIDAS -->
+
+        <section class="quick-actions">
+
+          <div>
+
+            <p>
+              GESTIÓN DE INVENTARIO
+            </p>
+
+            <h2>
+              Acciones rápidas
+            </h2>
+
+          </div>
+
+
+          <div class="action-buttons">
+
+            <button
+              type="button"
+              class="primary-action"
+              (click)="cambiarSeccion('inventario'); abrirFormularioRegistro()">
+
+              + Registrar alimento
+
+            </button>
+
+
+            <button
+              type="button"
+              class="secondary-action"
+              (click)="cambiarSeccion('inventario')">
+
+              Ver inventario
+
+            </button>
+
+          </div>
+
+        </section>
+
+
+      </ng-container>
+
+    </ng-container>
+
+
+    <!-- =================================================
+         INVENTARIO
+    ================================================== -->
+
+    <section
+      class="alerts-section"
+      *ngIf="seccionActiva === 'inventario'">
+
+
+      <!-- CABECERA INVENTARIO -->
+
+      <div class="section-header">
+
+        <div>
+
+          <p>
+            GESTIÓN DE ALIMENTOS
+          </p>
+
+          <h2>
+            Inventario de alimentos
+          </h2>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="primary-action"
+          (click)="abrirFormularioRegistro()">
+
+          + Registrar alimento
+
+        </button>
+
+      </div>
+
+
+      <!-- BARRA DE BÚSQUEDA -->
+
+      <div
+        style="
+          margin-top: 25px;
+          margin-bottom: 25px;
+        ">
+
+        <input
+          type="text"
+          placeholder="🔎 Buscar por código de lote o producto..."
+        >
+
+      </div>
+
+
+      <!-- MENSAJE -->
+
+      <div
+        class="empty-alerts"
+        *ngIf="
+          mensajeInventario &&
+          !mostrarFormularioRegistro
+        ">
+
+        {{ mensajeInventario }}
+
+      </div>
+
+
+      <!-- ===============================================
+           FORMULARIO REGISTRAR ALIMENTO
+      ================================================ -->
+
+      <div
+        class="food-form"
+        *ngIf="mostrarFormularioRegistro">
+
+
+        <!-- CABECERA FORMULARIO -->
+
+        <div class="food-form-header">
+
+          <div>
+
+            <p>
+              NUEVO REGISTRO
+            </p>
+
+            <h3>
+              Registrar alimento
+            </h3>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="close-form"
+            (click)="cerrarFormularioRegistro()">
+
+            ✕
+
+          </button>
+
+        </div>
+
+
+        <!-- FORMULARIO -->
+
+        <div class="form-grid">
+
+
+          <!-- LOTE -->
+
+          <div>
+
+            <label>
+              Código de lote *
+            </label>
+
+            <input
+              type="text"
+              [(ngModel)]="nuevoAlimento.lotCode"
+              placeholder="Ej. LOT-001"
+            >
+
+          </div>
+
+
+          <!-- PRODUCTO -->
+
+          <div>
+
+            <label>
+              Producto *
+            </label>
+
+            <input
+              type="text"
+              [(ngModel)]="nuevoAlimento.product"
+              placeholder="Ej. Leche"
+            >
+
+          </div>
+
+
+          <!-- CANTIDAD -->
+
+          <div>
+
+            <label>
+              Cantidad *
+            </label>
+
+            <input
+              type="number"
+              min="1"
+              [(ngModel)]="nuevoAlimento.quantity"
+            >
+
+          </div>
+
+
+          <!-- PRECIO -->
+
+          <div>
+
+            <label>
+              Precio unitario *
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="nuevoAlimento.unitPrice"
+            >
+
+          </div>
+
+
+          <!-- VENCIMIENTO -->
+
+          <div>
+
+            <label>
+              Fecha de vencimiento *
+            </label>
+
+            <input
+              type="date"
+              [(ngModel)]="nuevoAlimento.expirationDate"
+            >
+
+          </div>
+
+
+          <!-- TIPO -->
+
+          <div>
+
+            <label>
+              Tipo de alimento *
+            </label>
+
+            <input
+              type="text"
+              [(ngModel)]="nuevoAlimento.foodType"
+              placeholder="Ej. Lácteo"
+            >
+
+          </div>
+
+
+          <!-- RESPONSABLE -->
+
+          <div>
+
+            <label>
+              Responsable
+            </label>
+
+            <input
+              type="text"
+              [(ngModel)]="nuevoAlimento.responsible"
+              placeholder="Responsable del alimento"
+            >
+
+          </div>
+
+        </div>
+
+
+        <!-- MENSAJE FORMULARIO -->
+
+        <div
+          class="error"
+          *ngIf="mensajeInventario">
+
+          {{ mensajeInventario }}
+
+        </div>
+
+
+        <!-- BOTONES -->
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-action"
+            (click)="cerrarFormularioRegistro()">
+
+            Cancelar
+
+          </button>
+
+
+          <button
+            type="button"
+            class="primary-action"
+            [disabled]="guardandoAlimento"
+            (click)="registrarAlimento()">
+
+            {{
+              guardandoAlimento
+                ? 'Guardando...'
+                : 'Guardar alimento'
+            }}
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===============================================
+           INVENTARIO TEMPORAL
+      ================================================ -->
+
+      <div
+        class="empty-alerts"
+        *ngIf="!mostrarFormularioRegistro">
+
+        <strong>
+          Inventario
+        </strong>
+
+        <br><br>
+
+        El inventario incluirá:
+
+        <br><br>
+
+        Código de lote · Producto · Cantidad ·
+        Precio · Valor total · Fecha de vencimiento ·
+        Estado · Responsable · Versión
+
       </div>
 
     </section>
+
+
+    <!-- =================================================
+         ALERTAS
+    ================================================== -->
+
+    <section
+      class="alerts-section"
+      *ngIf="seccionActiva === 'alertas'">
+
+
+      <div class="section-header">
+
+        <div>
+
+          <p>
+            CONTROL DE VENCIMIENTOS
+          </p>
+
+          <h2>
+            Alertas de productos
+          </h2>
+
+        </div>
+
+
+        <span
+          class="alert-count"
+          *ngIf="dashboard">
+
+          {{ dashboard.alertas.length }}
+
+          {{
+            dashboard.alertas.length === 1
+              ? 'alerta'
+              : 'alertas'
+          }}
+
+        </span>
+
+      </div>
+
+
+      <div
+        class="loading"
+        *ngIf="cargandoDashboard">
+
+        Cargando alertas...
+
+      </div>
+
+
+      <ng-container
+        *ngIf="dashboard && !cargandoDashboard">
+
+
+        <!-- SIN ALERTAS -->
+
+        <div
+          class="empty-alerts"
+          *ngIf="dashboard.alertas.length === 0">
+
+          ✅ No existen alimentos próximos a vencer.
+
+        </div>
+
+
+        <!-- ALERTAS -->
+
+        <div
+          class="alert-list"
+          *ngIf="dashboard.alertas.length > 0">
+
+          <div
+            class="alert-item"
+            *ngFor="let alerta of dashboard.alertas"
+            [ngClass]="obtenerClaseAlerta(alerta.daysRemaining)">
+
+
+            <div class="alert-product">
+
+              <strong>
+                {{ alerta.product }}
+              </strong>
+
+              <span>
+                Lote {{ alerta.lotCode }}
+              </span>
+
+            </div>
+
+
+            <div class="alert-quantity">
+
+              <span>
+                Cantidad
+              </span>
+
+              <strong>
+                {{ alerta.quantity }}
+              </strong>
+
+            </div>
+
+
+            <div class="alert-date">
+
+              <span>
+                Vencimiento
+              </span>
+
+              <strong>
+                {{
+                  alerta.expirationDate
+                    | date:'dd/MM/yyyy'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div class="alert-days">
+
+              {{
+                obtenerTextoDias(
+                  alerta.daysRemaining
+                )
+              }}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </ng-container>
+
+    </section>
+
+
+    <!-- =================================================
+         USUARIOS
+    ================================================== -->
+
+    <section
+      class="alerts-section"
+      *ngIf="
+        seccionActiva === 'usuarios' &&
+        esAdministrador()
+      ">
+
+
+      <div class="section-header">
+
+        <div>
+
+          <p>
+            ADMINISTRACIÓN
+          </p>
+
+          <h2>
+            Gestión de usuarios
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <div class="empty-alerts">
+
+        Los usuarios del sistema se gestionan
+        mediante roles.
+
+        <br><br>
+
+        <strong>
+          Administrador
+        </strong>
+
+        — acceso completo al sistema.
+
+        <br><br>
+
+        <strong>
+          Responsable
+        </strong>
+
+        — gestión operativa del inventario,
+        registro y actualización de alimentos.
+
+      </div>
+
+    </section>
+
 
   </main>
 
